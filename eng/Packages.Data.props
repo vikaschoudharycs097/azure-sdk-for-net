@@ -106,6 +106,7 @@
 		<PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0"/>
 
     <!-- Azure SDK packages -->
+    <PackageReference Update="Azure.AI.Agents" Version="1.0.0-beta.1" />
     <PackageReference Update="Azure.AI.Inference" Version="1.0.0-beta.2" />
     <PackageReference Update="Azure.AI.OpenAI" Version="2.0.0" />
     <PackageReference Update="Azure.AI.Projects" Version="1.0.0-beta.2" />
