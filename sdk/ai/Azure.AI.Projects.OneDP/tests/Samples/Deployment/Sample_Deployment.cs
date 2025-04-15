@@ -19,31 +19,31 @@ public class Sample_Deployment : SamplesBase<AIProjectsTestEnvironment>
     {
         #region Snippet:DeploymentExampleSync
 #if SNIPPET
-        var endpoint = Environment.GetEnvironmentVariable("PROJECT_ENDPOINT");
-        var deploymentName = Environment.GetEnvironmentVariable("DEPLOYMENT_NAME");
-        var modelPublisher = Environment.GetEnvironmentVariable("MODEL_PUBLISHER");
+        var endpoint = System.Environment.GetEnvironmentVariable("PROJECT_ENDPOINT");
+        var deploymentName = System.Environment.GetEnvironmentVariable("DEPLOYMENT_NAME");
+        var modelPublisher = System.Environment.GetEnvironmentVariable("MODEL_PUBLISHER");
 #else
-        var endpoint = TestEnvironment.ProjectEndpoint;
-        var deploymentName = TestEnvironment.DeploymentName;
-        var modelPublisher = TestEnvironment.ModelPublisher;
+        var endpoint = TestEnvironment.PROJECTENDPOINT;
+        var deploymentName = TestEnvironment.MODELDEPLOYMENTNAME;
+        var modelPublisher = TestEnvironment.MODELPUBLISHER;
 #endif
-        var credential = new AzureKeyCredential(TestEnvironment.ProjectApiKey);
-        var projectClient = new AIProjectClient(endpoint, credential);
+        AIProjectClient projectClient = new(new Uri(endpoint), new DefaultAzureCredential());
+        Deployments deployments = projectClient.GetDeploymentsClient();
 
         Console.WriteLine("List all deployments:");
-        foreach (var deployment in projectClient.Deployments.List())
+        foreach (var deployment in deployments.GetDeployments())
         {
             Console.WriteLine(deployment);
         }
 
         Console.WriteLine($"List all deployments by the model publisher `{modelPublisher}`:");
-        foreach (var deployment in projectClient.Deployments.List(modelPublisher: modelPublisher))
+        foreach (var deployment in deployments.GetDeployments(modelPublisher: modelPublisher))
         {
             Console.WriteLine(deployment);
         }
 
         Console.WriteLine($"Get a single deployment named `{deploymentName}`:");
-        var deploymentDetails = projectClient.Deployments.Get(deploymentName);
+        var deploymentDetails = deployments.GetDeployment(deploymentName);
         Console.WriteLine(deploymentDetails);
         #endregion
     }

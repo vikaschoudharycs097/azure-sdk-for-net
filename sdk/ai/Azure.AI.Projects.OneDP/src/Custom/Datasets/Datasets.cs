@@ -1,55 +1,46 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using Azure.Core;
+using Azure.Core.Pipeline;
 using Azure.AI.Projects.OneDP;
 
-namespace Azure.AI.Projects.Custom.Datasets
+namespace Azure.AI.Projects.OneDP
 {
-    internal class DatasetOperations
+    public partial class Datasets
     {
-        private (BlobContainerClient, string) CreateDatasetAndGetContainerClient(
-            string name,
-            string inputVersion = null)
+        /// <summary>
+        /// Internal helper method to create a new dataset and return a BlobContainerClient to the dataset's blob storage.
+        /// </summary>
+        private (BlobContainerClient ContainerClient, string OutputVersion) CreateDatasetAndGetContainerClient(string name, string inputVersion)
         {
-            PendingUploadResponse pendingUploadResponse;
-            string outputVersion;
+            var pendingUploadResponse = StartPendingUpload(
+                name,
+                inputVersion,
+                new PendingUploadRequest(null, null, PendingUploadType.TemporaryBlobReference, null)
+            );
 
-            if (!string.IsNullOrEmpty(inputVersion))
+            string outputVersion = inputVersion;
+
+            if (pendingUploadResponse.Value.BlobReferenceForConsumption == null ||
+                pendingUploadResponse.Value.BlobReferenceForConsumption.Credential?.Type != CredentialType.SAS ||
+                string.IsNullOrEmpty(pendingUploadResponse.Value.BlobReferenceForConsumption.BlobUri))
             {
-                pendingUploadResponse = StartPendingUploadVersion(
-                    name,
-                    inputVersion,
-                    new PendingUploadRequest(PendingUploadType.TemporaryBlobReference)
-                );
-                outputVersion = inputVersion;
-            }
-            else
-            {
-                pendingUploadResponse = StartPendingUpload(
-                    name,
-                    new PendingUploadRequest(PendingUploadType.TemporaryBlobReference)
-                );
-                outputVersion = pendingUploadResponse.DatasetVersion ?? throw new InvalidOperationException("Dataset version is missing in the response.");
+                throw new InvalidOperationException("Invalid blob reference for consumption.");
             }
 
-            if (pendingUploadResponse.BlobReferenceForConsumption == null ||
-                string.IsNullOrEmpty(pendingUploadResponse.BlobReferenceForConsumption.BlobUri) ||
-                pendingUploadResponse.BlobReferenceForConsumption.Credential?.Type != CredentialType.Sas)
-            {
-                throw new InvalidOperationException("Invalid blob reference or credentials.");
-            }
-
-            var containerClient = new BlobContainerClient(new Uri(pendingUploadResponse.BlobReferenceForConsumption.BlobUri));
+            var containerClient = new BlobContainerClient(new Uri(pendingUploadResponse.Value.BlobReferenceForConsumption.BlobUri));
             return (containerClient, outputVersion);
         }
 
+        /// <summary>
+        /// Uploads a file to blob storage and creates a dataset that references this file.
+        /// </summary>
         public DatasetVersion UploadFileAndCreate(string name, string version, string filePath)
         {
             if (!File.Exists(filePath))
@@ -63,20 +54,23 @@ namespace Azure.AI.Projects.Custom.Datasets
             {
                 var blobName = Path.GetFileName(filePath);
                 var blobClient = containerClient.GetBlobClient(blobName);
-                blobClient.Upload(fileStream, overwrite: true);
+                blobClient.Upload(fileStream);
 
                 return CreateVersion(
                     name,
                     outputVersion,
-                    new DatasetVersion
+                    new FileDatasetVersion
                     {
-                        DatasetUri = blobClient.Uri.ToString(),
+                        DatasetUri = blobClient.Uri.AbsoluteUri,
                         Type = DatasetType.UriFile
                     }
                 );
             }
         }
 
+        /// <summary>
+        /// Uploads all files in a folder to blob storage and creates a dataset that references this folder.
+        /// </summary>
         public DatasetVersion UploadFolderAndCreate(string name, string version, string folderPath)
         {
             if (!Directory.Exists(folderPath))
@@ -86,70 +80,55 @@ namespace Azure.AI.Projects.Custom.Datasets
 
             var (containerClient, outputVersion) = CreateDatasetAndGetContainerClient(name, version);
 
-            var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
-            if (!files.Any())
+            var filesUploaded = false;
+            foreach (var filePath in Directory.EnumerateFiles(folderPath, "*", SearchOption.AllDirectories))
             {
-                throw new ArgumentException("The provided folder is empty.");
-            }
-
-            foreach (var file in files)
-            {
-                var relativePath = Path.GetRelativePath(folderPath, file);
-                using (var fileStream = File.OpenRead(file))
+                var relativePath = GetRelativePath(folderPath, filePath);
+                using (var fileStream = File.OpenRead(filePath))
                 {
                     var blobClient = containerClient.GetBlobClient(relativePath);
-                    blobClient.Upload(fileStream, overwrite: true);
+                    blobClient.Upload(fileStream);
+                    filesUploaded = true;
                 }
+            }
+
+            if (!filesUploaded)
+            {
+                throw new ArgumentException("The provided folder is empty.");
             }
 
             return CreateVersion(
                 name,
                 outputVersion,
-                new DatasetVersion
+                new FolderDatasetVersion
                 {
-                    DatasetUri = containerClient.Uri.ToString(),
+                    DatasetUri = containerClient.Uri.AbsoluteUri,
                     Type = DatasetType.UriFolder
                 }
             );
         }
-
-        // Implement missing methods
-        private PendingUploadResponse StartPendingUpload(string name, PendingUploadRequest request)
+        public static string GetRelativePath(string folderPath, string filePath)
         {
-            // Simulate a response for demonstration purposes
-            return new PendingUploadResponse
-            {
-                DatasetVersion = "1.0",
-                BlobReferenceForConsumption = new BlobReference
-                {
-                    BlobUri = "https://example.blob.core.windows.net/container",
-                    Credential = new Credential { Type = CredentialType.Sas }
-                }
-            };
-        }
+            if (string.IsNullOrEmpty(folderPath))
+                throw new ArgumentNullException(nameof(folderPath));
+            if (string.IsNullOrEmpty(filePath))
+                throw new ArgumentNullException(nameof(filePath));
 
-        private PendingUploadResponse StartPendingUploadVersion(string name, string version, PendingUploadRequest request)
-        {
-            // Simulate a response for demonstration purposes
-            return new PendingUploadResponse
-            {
-                DatasetVersion = version,
-                BlobReferenceForConsumption = new BlobReference
-                {
-                    BlobUri = "https://example.blob.core.windows.net/container",
-                    Credential = new Credential { Type = CredentialType.Sas }
-                }
-            };
-        }
+            Uri folderUri = new Uri(folderPath);
+            Uri fileUri = new Uri(filePath);
 
-        private DatasetVersion CreateVersion(string name, string version, DatasetVersion datasetVersion)
-        {
-            // Simulate a response for demonstration purposes
-            return new DatasetVersion
+            if (folderUri.Scheme != fileUri.Scheme)
+            { return filePath; } // path can't be made relative.
+
+            Uri relativeUri = folderUri.MakeRelativeUri(fileUri);
+            string relativePath = Uri.UnescapeDataString(relativeUri.AbsoluteUri);
+
+            if (fileUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
             {
-                DatasetUri = datasetVersion.DatasetUri,
-                Type = datasetVersion.Type
-            };
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            }
+
+            return relativePath;
         }
     }
 }
