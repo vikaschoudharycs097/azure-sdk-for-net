@@ -1670,5 +1670,233 @@ namespace Azure.Compute.Batch
                 throw;
             }
         }
+
+        /// <summary> Changes the number of Compute Nodes that are assigned to a Pool. </summary>
+        /// <param name="poolId"> The ID of the Pool to get. </param>
+        /// <param name="content"> The options to use for resizing the pool. </param>
+        /// <param name="timeOutInSeconds"> The maximum time that the server can spend processing the request, in seconds. The default is 30 seconds. If the value is larger than 30, the default will be used instead.". </param>
+        /// <param name="ocpDate">
+        /// The time the request was issued. Client libraries typically set this to the
+        /// current system clock time; set it explicitly if you are calling the REST API
+        /// directly.
+        /// </param>
+        /// <param name="requestConditions"> The content to send as the request conditions of the request. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="poolId"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks>
+        /// You can only resize a Pool when its allocation state is steady. If the Pool is
+        /// already resizing, the request fails with status code 409. When you resize a
+        /// Pool, the Pool's allocation state changes from steady to resizing. You cannot
+        /// resize Pools which are configured for automatic scaling. If you try to do this,
+        /// the Batch service returns an error 409. If you resize a Pool downwards, the
+        /// Batch service chooses which Compute Nodes to remove. To remove specific Compute
+        /// Nodes, use the Pool remove Compute Nodes API instead.
+        /// <returns> The ResizePoolOperation object to allow for polling of operation status. </returns>
+        /// </remarks>
+        public virtual async Task<ResizePoolOperation> ResizePoolAsync(string poolId, BatchPoolResizeOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.ResizePool");
+            scope.Start();
+            try
+            {
+                Response response = await ResizePoolInternalAsync(poolId, content, timeOutInSeconds, ocpDate, requestConditions, cancellationToken).ConfigureAwait(false);
+                return new ResizePoolOperation(this, resizeId: poolId, response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Changes the number of Compute Nodes that are assigned to a Pool. </summary>
+        /// <param name="poolId"> The ID of the Pool to get. </param>
+        /// <param name="content"> The options to use for resizing the pool. </param>
+        /// <param name="timeOutInSeconds"> The maximum time that the server can spend processing the request, in seconds. The default is 30 seconds. If the value is larger than 30, the default will be used instead.". </param>
+        /// <param name="ocpDate">
+        /// The time the request was issued. Client libraries typically set this to the
+        /// current system clock time; set it explicitly if you are calling the REST API
+        /// directly.
+        /// </param>
+        /// <param name="requestConditions"> The content to send as the request conditions of the request. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="poolId"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks>
+        /// You can only resize a Pool when its allocation state is steady. If the Pool is
+        /// already resizing, the request fails with status code 409. When you resize a
+        /// Pool, the Pool's allocation state changes from steady to resizing. You cannot
+        /// resize Pools which are configured for automatic scaling. If you try to do this,
+        /// the Batch service returns an error 409. If you resize a Pool downwards, the
+        /// Batch service chooses which Compute Nodes to remove. To remove specific Compute
+        /// Nodes, use the Pool remove Compute Nodes API instead.
+        /// <returns> The ResizePoolOperation object to allow for polling of operation status. </returns>
+        /// </remarks>
+        public virtual ResizePoolOperation ResizePool(string poolId, BatchPoolResizeOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.ResizePool");
+            scope.Start();
+            try
+            {
+                Response response = ResizePoolInternal(poolId, content, timeOutInSeconds, ocpDate, requestConditions, cancellationToken);
+                return new ResizePoolOperation(this, resizeId: poolId, response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        // The convenience method is omitted here because it has exactly the same parameter list as the corresponding protocol method
+        /// <summary>
+        /// [Protocol Method] Stops an ongoing resize operation on the Pool.
+        /// <list type="bullet">
+        /// <item>
+        /// <description>
+        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="poolId"> The ID of the Pool to get. </param>
+        /// <param name="timeOutInSeconds"> The maximum time that the server can spend processing the request, in seconds. The default is 30 seconds. If the value is larger than 30, the default will be used instead.". </param>
+        /// <param name="ocpDate">
+        /// The time the request was issued. Client libraries typically set this to the
+        /// current system clock time; set it explicitly if you are calling the REST API
+        /// directly.
+        /// </param>
+        /// <param name="requestConditions"> The content to send as the request conditions of the request. </param>
+        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="poolId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
+        /// <returns> The StopPoolResizeOperation object to allow for polling of operation status. </returns>
+        public virtual async Task<StopPoolResizeOperation> StopPoolResizeAsync(string poolId, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        {
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.StopPoolResize");
+            scope.Start();
+            try
+            {
+                Response response = await StopPoolResizeInternalAsync(poolId, timeOutInSeconds, ocpDate, requestConditions).ConfigureAwait(false);
+                return new StopPoolResizeOperation(this, resizeId: poolId, response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        // The convenience method is omitted here because it has exactly the same parameter list as the corresponding protocol method
+        /// <summary>
+        /// [Protocol Method] Stops an ongoing resize operation on the Pool.
+        /// <list type="bullet">
+        /// <item>
+        /// <description>
+        /// This <see href="https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/ProtocolMethods.md">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios.
+        /// </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="poolId"> The ID of the Pool to get. </param>
+        /// <param name="timeOutInSeconds"> The maximum time that the server can spend processing the request, in seconds. The default is 30 seconds. If the value is larger than 30, the default will be used instead.". </param>
+        /// <param name="ocpDate">
+        /// The time the request was issued. Client libraries typically set this to the
+        /// current system clock time; set it explicitly if you are calling the REST API
+        /// directly.
+        /// </param>
+        /// <param name="requestConditions"> The content to send as the request conditions of the request. </param>
+        /// <param name="context"> The request context, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="poolId"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
+        /// <returns> The StopPoolResizeOperation object to allow for polling of operation status. </returns>
+        public virtual StopPoolResizeOperation StopPoolResize(string poolId, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        {
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.StopPoolResize");
+            scope.Start();
+            try
+            {
+                Response response = StopPoolResizeInternal(poolId, timeOutInSeconds, ocpDate, requestConditions);
+                return new StopPoolResizeOperation(this, resizeId: poolId, response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Removes Compute Nodes from the specified Pool. </summary>
+        /// <param name="poolId"> The ID of the Pool to get. </param>
+        /// <param name="content"> The options to use for removing the node. </param>
+        /// <param name="timeOutInSeconds"> The maximum time that the server can spend processing the request, in seconds. The default is 30 seconds. If the value is larger than 30, the default will be used instead.". </param>
+        /// <param name="ocpDate">
+        /// The time the request was issued. Client libraries typically set this to the
+        /// current system clock time; set it explicitly if you are calling the REST API
+        /// directly.
+        /// </param>
+        /// <param name="requestConditions"> The content to send as the request conditions of the request. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="poolId"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks>
+        /// This operation can only run when the allocation state of the Pool is steady.
+        /// When this operation runs, the allocation state changes from steady to resizing.
+        /// Each request may remove up to 100 nodes.
+        /// </remarks>
+        /// <returns> The RemoveNodesOperation object to allow for polling of operation status. </returns>
+        public virtual async Task<RemoveNodesOperation> RemoveNodesAsync(string poolId, BatchNodeRemoveOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.RemoveNodes");
+            scope.Start();
+            try
+            {
+                Response response = await RemoveNodesInternalAsync(poolId, content, timeOutInSeconds, ocpDate, requestConditions).ConfigureAwait(false);
+                return new RemoveNodesOperation(this, poolId, response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
+
+        /// <summary> Removes Compute Nodes from the specified Pool. </summary>
+        /// <param name="poolId"> The ID of the Pool to get. </param>
+        /// <param name="content"> The options to use for removing the node. </param>
+        /// <param name="timeOutInSeconds"> The maximum time that the server can spend processing the request, in seconds. The default is 30 seconds. If the value is larger than 30, the default will be used instead.". </param>
+        /// <param name="ocpDate">
+        /// The time the request was issued. Client libraries typically set this to the
+        /// current system clock time; set it explicitly if you are calling the REST API
+        /// directly.
+        /// </param>
+        /// <param name="requestConditions"> The content to send as the request conditions of the request. </param>
+        /// <param name="cancellationToken"> The cancellation token to use. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="poolId"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <remarks>
+        /// This operation can only run when the allocation state of the Pool is steady.
+        /// When this operation runs, the allocation state changes from steady to resizing.
+        /// Each request may remove up to 100 nodes.
+        /// </remarks>
+        /// <returns> The RemoveNodesOperation object to allow for polling of operation status. </returns>
+        public virtual RemoveNodesOperation RemoveNodes(string poolId, BatchNodeRemoveOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        {
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.RemoveNodes");
+            scope.Start();
+            try
+            {
+                Response response = RemoveNodesInternal(poolId, content, timeOutInSeconds, ocpDate, requestConditions);
+                return new RemoveNodesOperation(this, poolId, response);
+            }
+            catch (Exception e)
+            {
+                scope.Failed(e);
+                throw;
+            }
+        }
     }
 }

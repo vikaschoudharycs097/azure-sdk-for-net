@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -111,14 +112,14 @@ namespace Azure.Compute.Batch.Tests.Integration
                 Assert.AreEqual(2, nodeCount);
 
                 BatchNodeRemoveOptions content = new BatchNodeRemoveOptions(new string[] { batchNodeID });
-                Response response = await client.RemoveNodesAsync(poolID, content);
-                Assert.AreEqual(202, response.Status);
+                RemoveNodesOperation operation = await client.RemoveNodesAsync(poolID, content);
+                await operation.WaitForCompletionAsync();
 
-                BatchPool modfiedPool = await client.GetPoolAsync(poolID);
+                BatchPool modfiedPool = operation.Value;
 
                 // verify that some usage exists, we can't predict what usage that might be at the time of the test
                 Assert.NotNull(modfiedPool);
-                Assert.AreEqual(AllocationState.Resizing, modfiedPool.AllocationState);
+                Assert.AreNotEqual(AllocationState.Resizing, modfiedPool.AllocationState);
             }
             finally
             {
@@ -272,22 +273,13 @@ namespace Azure.Compute.Batch.Tests.Integration
                 };
 
                 // resize pool
-                Response response = await client.ResizePoolAsync(poolID, resizeContent);
+                await client.ResizePoolAsync(poolID, resizeContent);
                 resizePool = await client.GetPoolAsync(poolID);
                 Assert.AreEqual(AllocationState.Resizing, resizePool.AllocationState);
 
-                try
-                {
-                    response = await client.ResizePoolAsync("fakepool", resizeContent);
-                }
-                catch (Azure.RequestFailedException e)
-                {
-                    Assert.AreEqual("PoolNotFound", e.ErrorCode);
-                }
-
                 // stop resizing
-                response = await client.StopPoolResizeAsync(poolID);
-                Assert.AreEqual(202, response.Status);
+                StopPoolResizeOperation operation = await client.StopPoolResizeAsync(poolID);
+                await operation.WaitForCompletionAsync();
             }
             finally
             {

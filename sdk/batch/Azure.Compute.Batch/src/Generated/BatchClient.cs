@@ -1076,15 +1076,14 @@ namespace Azure.Compute.Batch
         /// Batch service chooses which Compute Nodes to remove. To remove specific Compute
         /// Nodes, use the Pool remove Compute Nodes API instead.
         /// </remarks>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='ResizePoolAsync(string,BatchPoolResizeOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)']/*" />
-        public virtual async Task<Response> ResizePoolAsync(string poolId, BatchPoolResizeOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        internal virtual async Task<Response> ResizePoolInternalAsync(string poolId, BatchPoolResizeOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
             using RequestContent content0 = content.ToRequestContent();
             RequestContext context = FromCancellationToken(cancellationToken);
-            Response response = await ResizePoolAsync(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context).ConfigureAwait(false);
+            Response response = await ResizePoolInternalAsync(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context).ConfigureAwait(false);
             return response;
         }
 
@@ -1110,15 +1109,14 @@ namespace Azure.Compute.Batch
         /// Batch service chooses which Compute Nodes to remove. To remove specific Compute
         /// Nodes, use the Pool remove Compute Nodes API instead.
         /// </remarks>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='ResizePool(string,BatchPoolResizeOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)']/*" />
-        public virtual Response ResizePool(string poolId, BatchPoolResizeOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        internal virtual Response ResizePoolInternal(string poolId, BatchPoolResizeOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
             using RequestContent content0 = content.ToRequestContent();
             RequestContext context = FromCancellationToken(cancellationToken);
-            Response response = ResizePool(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context);
+            Response response = ResizePoolInternal(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context);
             return response;
         }
 
@@ -1132,7 +1130,7 @@ namespace Azure.Compute.Batch
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="ResizePoolAsync(string,BatchPoolResizeOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="ResizePoolInternalAsync(string,BatchPoolResizeOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
@@ -1151,17 +1149,16 @@ namespace Azure.Compute.Batch
         /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='ResizePoolAsync(string,RequestContent,TimeSpan?,DateTimeOffset?,RequestConditions,RequestContext)']/*" />
-        public virtual async Task<Response> ResizePoolAsync(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        internal virtual async Task<Response> ResizePoolInternalAsync(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateScope("BatchClient.ResizePool");
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.ResizePoolInternal");
             scope.Start();
             try
             {
-                using HttpMessage message = CreateResizePoolRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
+                using HttpMessage message = CreateResizePoolInternalRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
                 return await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -1181,7 +1178,7 @@ namespace Azure.Compute.Batch
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="ResizePool(string,BatchPoolResizeOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="ResizePoolInternal(string,BatchPoolResizeOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
@@ -1200,17 +1197,16 @@ namespace Azure.Compute.Batch
         /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='ResizePool(string,RequestContent,TimeSpan?,DateTimeOffset?,RequestConditions,RequestContext)']/*" />
-        public virtual Response ResizePool(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        internal virtual Response ResizePoolInternal(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateScope("BatchClient.ResizePool");
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.ResizePoolInternal");
             scope.Start();
             try
             {
-                using HttpMessage message = CreateResizePoolRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
+                using HttpMessage message = CreateResizePoolInternalRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
                 return _pipeline.ProcessMessage(message, context);
             }
             catch (Exception e)
@@ -1244,16 +1240,15 @@ namespace Azure.Compute.Batch
         /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='StopPoolResizeAsync(string,TimeSpan?,DateTimeOffset?,RequestConditions,RequestContext)']/*" />
-        public virtual async Task<Response> StopPoolResizeAsync(string poolId, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        internal virtual async Task<Response> StopPoolResizeInternalAsync(string poolId, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
 
-            using var scope = ClientDiagnostics.CreateScope("BatchClient.StopPoolResize");
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.StopPoolResizeInternal");
             scope.Start();
             try
             {
-                using HttpMessage message = CreateStopPoolResizeRequest(poolId, timeOutInSeconds, ocpDate, requestConditions, context);
+                using HttpMessage message = CreateStopPoolResizeInternalRequest(poolId, timeOutInSeconds, ocpDate, requestConditions, context);
                 return await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -1287,16 +1282,15 @@ namespace Azure.Compute.Batch
         /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='StopPoolResize(string,TimeSpan?,DateTimeOffset?,RequestConditions,RequestContext)']/*" />
-        public virtual Response StopPoolResize(string poolId, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        internal virtual Response StopPoolResizeInternal(string poolId, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
 
-            using var scope = ClientDiagnostics.CreateScope("BatchClient.StopPoolResize");
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.StopPoolResizeInternal");
             scope.Start();
             try
             {
-                using HttpMessage message = CreateStopPoolResizeRequest(poolId, timeOutInSeconds, ocpDate, requestConditions, context);
+                using HttpMessage message = CreateStopPoolResizeInternalRequest(poolId, timeOutInSeconds, ocpDate, requestConditions, context);
                 return _pipeline.ProcessMessage(message, context);
             }
             catch (Exception e)
@@ -1478,15 +1472,14 @@ namespace Azure.Compute.Batch
         /// When this operation runs, the allocation state changes from steady to resizing.
         /// Each request may remove up to 100 nodes.
         /// </remarks>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='RemoveNodesAsync(string,BatchNodeRemoveOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)']/*" />
-        public virtual async Task<Response> RemoveNodesAsync(string poolId, BatchNodeRemoveOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        internal virtual async Task<Response> RemoveNodesInternalAsync(string poolId, BatchNodeRemoveOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
             using RequestContent content0 = content.ToRequestContent();
             RequestContext context = FromCancellationToken(cancellationToken);
-            Response response = await RemoveNodesAsync(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context).ConfigureAwait(false);
+            Response response = await RemoveNodesInternalAsync(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context).ConfigureAwait(false);
             return response;
         }
 
@@ -1508,15 +1501,14 @@ namespace Azure.Compute.Batch
         /// When this operation runs, the allocation state changes from steady to resizing.
         /// Each request may remove up to 100 nodes.
         /// </remarks>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='RemoveNodes(string,BatchNodeRemoveOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)']/*" />
-        public virtual Response RemoveNodes(string poolId, BatchNodeRemoveOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
+        internal virtual Response RemoveNodesInternal(string poolId, BatchNodeRemoveOptions content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
             using RequestContent content0 = content.ToRequestContent();
             RequestContext context = FromCancellationToken(cancellationToken);
-            Response response = RemoveNodes(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context);
+            Response response = RemoveNodesInternal(poolId, content0, timeOutInSeconds, ocpDate, requestConditions, context);
             return response;
         }
 
@@ -1530,7 +1522,7 @@ namespace Azure.Compute.Batch
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="RemoveNodesAsync(string,BatchNodeRemoveOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="RemoveNodesInternalAsync(string,BatchNodeRemoveOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
@@ -1549,17 +1541,16 @@ namespace Azure.Compute.Batch
         /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='RemoveNodesAsync(string,RequestContent,TimeSpan?,DateTimeOffset?,RequestConditions,RequestContext)']/*" />
-        public virtual async Task<Response> RemoveNodesAsync(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        internal virtual async Task<Response> RemoveNodesInternalAsync(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateScope("BatchClient.RemoveNodes");
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.RemoveNodesInternal");
             scope.Start();
             try
             {
-                using HttpMessage message = CreateRemoveNodesRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
+                using HttpMessage message = CreateRemoveNodesInternalRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
                 return await _pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false);
             }
             catch (Exception e)
@@ -1579,7 +1570,7 @@ namespace Azure.Compute.Batch
         /// </item>
         /// <item>
         /// <description>
-        /// Please try the simpler <see cref="RemoveNodes(string,BatchNodeRemoveOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
+        /// Please try the simpler <see cref="RemoveNodesInternal(string,BatchNodeRemoveOptions,TimeSpan?,DateTimeOffset?,RequestConditions,CancellationToken)"/> convenience overload with strongly typed models first.
         /// </description>
         /// </item>
         /// </list>
@@ -1598,17 +1589,16 @@ namespace Azure.Compute.Batch
         /// <exception cref="ArgumentException"> <paramref name="poolId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        /// <include file="Docs/BatchClient.xml" path="doc/members/member[@name='RemoveNodes(string,RequestContent,TimeSpan?,DateTimeOffset?,RequestConditions,RequestContext)']/*" />
-        public virtual Response RemoveNodes(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
+        internal virtual Response RemoveNodesInternal(string poolId, RequestContent content, TimeSpan? timeOutInSeconds = null, DateTimeOffset? ocpDate = null, RequestConditions requestConditions = null, RequestContext context = null)
         {
             Argument.AssertNotNullOrEmpty(poolId, nameof(poolId));
             Argument.AssertNotNull(content, nameof(content));
 
-            using var scope = ClientDiagnostics.CreateScope("BatchClient.RemoveNodes");
+            using var scope = ClientDiagnostics.CreateScope("BatchClient.RemoveNodesInternal");
             scope.Start();
             try
             {
-                using HttpMessage message = CreateRemoveNodesRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
+                using HttpMessage message = CreateRemoveNodesInternalRequest(poolId, content, timeOutInSeconds, ocpDate, requestConditions, context);
                 return _pipeline.ProcessMessage(message, context);
             }
             catch (Exception e)
@@ -10481,7 +10471,7 @@ namespace Azure.Compute.Batch
             return message;
         }
 
-        internal HttpMessage CreateResizePoolRequest(string poolId, RequestContent content, TimeSpan? timeOutInSeconds, DateTimeOffset? ocpDate, RequestConditions requestConditions, RequestContext context)
+        internal HttpMessage CreateResizePoolInternalRequest(string poolId, RequestContent content, TimeSpan? timeOutInSeconds, DateTimeOffset? ocpDate, RequestConditions requestConditions, RequestContext context)
         {
             var message = _pipeline.CreateMessage(context, ResponseClassifier202);
             var request = message.Request;
@@ -10513,7 +10503,7 @@ namespace Azure.Compute.Batch
             return message;
         }
 
-        internal HttpMessage CreateStopPoolResizeRequest(string poolId, TimeSpan? timeOutInSeconds, DateTimeOffset? ocpDate, RequestConditions requestConditions, RequestContext context)
+        internal HttpMessage CreateStopPoolResizeInternalRequest(string poolId, TimeSpan? timeOutInSeconds, DateTimeOffset? ocpDate, RequestConditions requestConditions, RequestContext context)
         {
             var message = _pipeline.CreateMessage(context, ResponseClassifier202);
             var request = message.Request;
@@ -10571,7 +10561,7 @@ namespace Azure.Compute.Batch
             return message;
         }
 
-        internal HttpMessage CreateRemoveNodesRequest(string poolId, RequestContent content, TimeSpan? timeOutInSeconds, DateTimeOffset? ocpDate, RequestConditions requestConditions, RequestContext context)
+        internal HttpMessage CreateRemoveNodesInternalRequest(string poolId, RequestContent content, TimeSpan? timeOutInSeconds, DateTimeOffset? ocpDate, RequestConditions requestConditions, RequestContext context)
         {
             var message = _pipeline.CreateMessage(context, ResponseClassifier202);
             var request = message.Request;

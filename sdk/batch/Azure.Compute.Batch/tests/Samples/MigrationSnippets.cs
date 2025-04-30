@@ -30,7 +30,7 @@ namespace Azure.Compute.Batch.Tests.Samples
             #region Snippet:Batch_Migration_Exception
             try
             {
-                Response response = batchClient.ResizePool("fakepool", resizeOptions);
+                batchClient.ResizePool("fakepool", resizeOptions);
             }
             catch (Azure.RequestFailedException e)
             {
@@ -41,13 +41,10 @@ namespace Azure.Compute.Batch.Tests.Samples
                     Console.WriteLine(e.Message);
 
                     // additional message details
-                    if (e.Data != null)
+                    foreach (DictionaryEntry item in e.Data)
                     {
-                        foreach (DictionaryEntry item in e.Data)
-                        {
-                            Console.WriteLine(item.Key);
-                            Console.WriteLine(item.Value);
-                        }
+                        Console.WriteLine(item.Key);
+                        Console.WriteLine(item.Value);
                     }
                 }
             }
